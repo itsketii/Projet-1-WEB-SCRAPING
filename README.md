@@ -26,7 +26,6 @@ Ce projet a pour objectif de nous apprendre la récupération des données sur l
 
 * Langage de programmation :`Python`
 * Packages utilisé :
-  * `beautifulsoup4`
   * `lxml`
   * `pandas`
   * `requests`
@@ -42,17 +41,6 @@ Ce projet a pour objectif de nous apprendre la récupération des données sur l
 /Projet-1-WEB-SCRAPPING
 
  /venv
-
- /scraping_amazon
-  /scraping_amazo
-   /spiders
-    _init_.py
-   _init_.py
-   items.py
-   middlewares.py
-   pipelines.py
-   settings.py
-   scrapy.cfg
 
  .gitgnore
  main.py
