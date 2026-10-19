@@ -31,8 +31,6 @@ def main():
         trouve = robot.attendre_resultats(DELAI_ATTENTE)
 
         if not args.local:
-            # Page valide -> <slug>.html ; page bloquée -> <slug>_bloque.html
-            # (on n'écrase jamais une bonne page par un captcha)
             nom = f"{slug}.html" if trouve else f"{slug}_bloque.html"
             robot.sauvegarder_html(os.path.join(DOSSIER_PAGES, nom))
 

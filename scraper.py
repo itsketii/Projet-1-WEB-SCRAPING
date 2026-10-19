@@ -14,12 +14,10 @@ from produit import Produit
 
 
 class ScraperAmazon:
-    """Le robot : ouvre une page avec Firefox et en extrait les produits."""
 
     URL_RECHERCHE = "https://www.amazon.fr/s?k="
     CARTES = 'div[data-component-type="s-search-result"]'
 
-    # champ : (sélecteur CSS, mot que le texte doit contenir ou None)
     SELECTEURS = {
         "description":   ("span.a-size-base.a-color-secondary.title-differentiators.s-line-clamp-1.a-text-normal", None),
         "prix":          ("span.a-price:not([data-a-strike]) span.a-offscreen", None),  # à vérifier sur la page sauvegardée
@@ -33,7 +31,6 @@ class ScraperAmazon:
     SELECTEURS_OUI_NON = {
         "stock_limite":  ("span.a-size-base.a-color-price", "reste"),
         "offre_limitee": ("span.a-badge-text", "Offre à durée limitée"),
-        # "best_seller": ("...", "..."),  # à compléter avec une page qui contient ce badge
     }
 
     def __init__(self, invisible=False):
