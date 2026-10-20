@@ -3,9 +3,9 @@ import os
 import sys
 
 from config import DELAI_ATTENTE, HEADLESS
-import export_csv
-from outils import slugifier
-from scraper import ScraperAmazon
+from app.views import export_view
+from app.outils import slugifier
+from app.scraper.scraper_amazon import ScraperAmazon
 
 DOSSIER_PAGES = "pages"
 
@@ -36,7 +36,7 @@ def main():
 
         produits = robot.extraire_tous() if trouve else []
 
-    exporteur = getattr(export_csv, "ExportCSV")
+    exporteur = getattr(export_view, "ExportCSV")
     exporteur(args.mot_cle).enregistrer(produits)
 
 
