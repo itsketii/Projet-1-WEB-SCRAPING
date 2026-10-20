@@ -66,22 +66,30 @@ programme.
 ```text
 /Projet-1-WEB-SCRAPPING
 │
-├── main.py              # point d'entrée du programme
-├── scraper.py           # navigateur Selenium et extraction HTML
-├── produit.py           # modèle de données d'un produit
-├── export_csv.py        # enregistrement des produits en CSV
-├── outils.py            # fonctions utilitaires
-├── config.py            # réglages du programme
-├── requirements.txt     # dépendances Python
-├── README.md            # présentation du projet
-├── .gitignore           # fichiers exclus de Git
-├── pages/               # pages HTML sauvegardées automatiquement
-└── data/                # fichiers CSV créés automatiquement
+├── main.py                          # point d'entrée (lecture des arguments)
+├── config.py                        # réglages du programme
+├── requirements.txt                 # dépendances Python
+├── README.md                        # présentation du projet
+├── .gitignore                       # fichiers exclus de Git
+│
+├── app/
+│   ├── outils.py                    # fonctions utilitaires
+│   ├── controllers/
+│   │   └── controleur_scraping.py   # orchestre le scraping et l'export
+│   ├── models/
+│   │   └── produit.py               # modèle de données d'un produit
+│   ├── scraper/
+│   │   ├── navigateur.py            # création du navigateur Firefox
+│   │   ├── extracteur.py            # sélecteurs CSS et lecture d'un produit
+│   │   └── scraper_amazon.py        # pilotage du navigateur sur Amazon
+│   └── views/
+│       └── export_view.py           # enregistrement des produits en CSV
+│
+├── pages/                           # pages HTML sauvegardées automatiquement
+└── data/                            # fichiers CSV créés automatiquement
 ```
 
-Un guide personnel plus détaillé se trouve dans
-[`docs/Help.md`](docs/Help.md). Ce fichier est
-volontairement exclu de Git afin de rester un support de travail personnel.
+Le projet suit une architecture **MVC** : les **modèles** décrivent les données, les **vues** présentent ou exportent les résultats, et le **contrôleur** fait le lien entre le scraper, les modèles et les vues.
 
 ---
 

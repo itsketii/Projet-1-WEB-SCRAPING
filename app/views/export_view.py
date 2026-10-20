@@ -5,7 +5,7 @@ from datetime import datetime
 
 from config import DOSSIER_DATA
 from outils import slugifier
-from produit import Produit
+from app.models.produit import Produit
 
 
 class ExportCSV:
