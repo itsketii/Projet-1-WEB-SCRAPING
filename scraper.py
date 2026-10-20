@@ -3,14 +3,13 @@ import re
 from pathlib import Path
 from urllib.parse import quote_plus
 
-from selenium import webdriver
+from app.scraper.navigateur import creer_navigateur
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from produit import Produit
+from app.models.produit import Produit
 
 
 class ScraperAmazon:
@@ -34,12 +33,8 @@ class ScraperAmazon:
     }
 
     def __init__(self, invisible=False):
-        options = Options()
-        if invisible:
-            options.add_argument("-headless")
-        options.set_preference("intl.accept_languages", "fr-FR")
-        self.driver = webdriver.Firefox(options=options)
-
+      self.driver = creer_navigateur(invisible)
+    
     # --- permet d'écrire : with ScraperAmazon() as robot: ---
     def __enter__(self):
         return self
