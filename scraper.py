@@ -1,5 +1,4 @@
 import os
-import re
 from pathlib import Path
 from urllib.parse import quote_plus
 
@@ -9,28 +8,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from app.models.produit import Produit
-
+from app.scraper.extracteur import CARTES, extraire_produit
 
 class ScraperAmazon:
 
     URL_RECHERCHE = "https://www.amazon.fr/s?k="
-    CARTES = 'div[data-component-type="s-search-result"]'
-
-    SELECTEURS = {
-        "description":   ("span.a-size-base.a-color-secondary.title-differentiators.s-line-clamp-1.a-text-normal", None),
-        "prix":          ("span.a-price:not([data-a-strike]) span.a-offscreen", None),  # à vérifier sur la page sauvegardée
-        "prix_original": ("span.a-price[data-a-strike='true'] span.a-offscreen", None),
-        "note":          ("span.a-size-small.a-color-base", None),                       # sélecteur large : à vérifier
-        "avis":          ("span.a-size-mini.puis-normal-weight-text.s-underline-text", None),
-        "ventes":        ("span.a-size-base.a-color-secondary", "achetés"),
-        "livraison":     ("div.udm-primary-delivery-message", None),
-    }
-
-    SELECTEURS_OUI_NON = {
-        "stock_limite":  ("span.a-size-base.a-color-price", "reste"),
-        "offre_limitee": ("span.a-badge-text", "Offre à durée limitée"),
-    }
+    
+    
 
     def __init__(self, invisible=False):
       self.driver = creer_navigateur(invisible)
@@ -54,18 +38,6 @@ class ScraperAmazon:
     def url_fichier_local(chemin):
         return Path(chemin).resolve().as_uri()
 
-    # --- outils internes ---
-    @staticmethod
-    def _texte(element):
-        brut = element.get_attribute("textContent") or ""
-        return " ".join(brut.split())
-
-    def _chercher(self, carte, selecteur, contient=None):
-        for element in carte.find_elements(By.CSS_SELECTOR, selecteur):
-            t = self._texte(element)
-            if t and (contient is None or contient in t):
-                return t
-        return None
 
     # --- actions principales ---
     def ouvrir(self, adresse):
@@ -75,7 +47,7 @@ class ScraperAmazon:
         """True si les cartes produits apparaissent, False sinon (captcha, blocage...)."""
         try:
             WebDriverWait(self.driver, delai).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, self.CARTES)))
+                EC.presence_of_element_located((By.CSS_SELECTOR, CARTES)))
             return True
         except TimeoutException:
             return False
@@ -86,25 +58,8 @@ class ScraperAmazon:
         with open(chemin, "w", encoding="utf-8") as f:
             f.write(self.driver.page_source)
 
-    def extraire_produit(self, carte):
-        """Transforme UNE carte HTML en objet Produit."""
-        produit = Produit()
-
-        h2 = carte.find_elements(By.TAG_NAME, "h2")
-        produit.nom = self._texte(h2[0]) if h2 else None
-
-        for champ, (selecteur, contient) in self.SELECTEURS.items():
-            setattr(produit, champ, self._chercher(carte, selecteur, contient))
-
-        montant = re.search(r"(\d+,\d+)\s*€", produit.livraison or "")
-        produit.prix_livraison = montant.group(1) if montant else None
-
-        for champ, (selecteur, contient) in self.SELECTEURS_OUI_NON.items():
-            setattr(produit, champ, self._chercher(carte, selecteur, contient) is not None)
-
-        return produit
-
+   
     def extraire_tous(self):
         """Renvoie la liste de tous les produits de la page."""
-        cartes = self.driver.find_elements(By.CSS_SELECTOR, self.CARTES)
-        return [self.extraire_produit(carte) for carte in cartes]
+        cartes = self.driver.find_elements(By.CSS_SELECTOR, CARTES)
+        return [extraire_produit(carte) for carte in cartes]
