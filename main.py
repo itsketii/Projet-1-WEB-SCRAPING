@@ -2,12 +2,7 @@ import argparse
 import os
 import sys
 
-from config import DELAI_ATTENTE, HEADLESS
-from app.views.export_view import ExportCSV
-from app.outils import slugifier
-from app.scraper.scraper_amazon import ScraperAmazon
-
-DOSSIER_PAGES = "pages"
+from app.controllers.controleur_scraping import ControleurScraping
 
 
 def main():
@@ -17,27 +12,10 @@ def main():
                          help="travailler sur une page déjà sauvegardée (aucune requête vers Amazon)")
     args = parseur.parse_args()
 
-    slug = slugifier(args.mot_cle)
+    if args.local and not os.path.exists(args.local):
+        sys.exit(f"Fichier introuvable : {args.local}")
 
-    if args.local:
-        if not os.path.exists(args.local):
-            sys.exit(f"Fichier introuvable : {args.local}")
-        adresse = ScraperAmazon.url_fichier_local(args.local)
-    else:
-        adresse = ScraperAmazon.url_recherche(args.mot_cle)
-
-    with ScraperAmazon(invisible=HEADLESS) as robot:
-        robot.ouvrir(adresse)
-        trouve = robot.attendre_resultats(DELAI_ATTENTE)
-
-        if not args.local:
-            nom = f"{slug}.html" if trouve else f"{slug}_bloque.html"
-            robot.sauvegarder_html(os.path.join(DOSSIER_PAGES, nom))
-
-        produits = robot.extraire_tous() if trouve else []
-
-
-    ExportCSV(args.mot_cle).enregistrer(produits)
+    ControleurScraping().lancer(args.mot_cle, args.local)
 
 
 if __name__ == "__main__":
