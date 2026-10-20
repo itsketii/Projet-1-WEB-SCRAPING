@@ -3,7 +3,7 @@ import os
 import sys
 
 from config import DELAI_ATTENTE, HEADLESS
-from app.views import export_view
+from app.views.export_view import ExportCSV
 from app.outils import slugifier
 from app.scraper.scraper_amazon import ScraperAmazon
 
@@ -36,8 +36,8 @@ def main():
 
         produits = robot.extraire_tous() if trouve else []
 
-    exporteur = getattr(export_view, "ExportCSV")
-    exporteur(args.mot_cle).enregistrer(produits)
+
+    ExportCSV(args.mot_cle).enregistrer(produits)
 
 
 if __name__ == "__main__":
