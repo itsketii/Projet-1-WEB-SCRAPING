@@ -5,6 +5,7 @@ from app.outils import slugifier
 from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV
 from app.models.depot_produits import DepotProduits
+from app.views.vue_console import VueConsole
 
 
 
@@ -39,6 +40,38 @@ class ControleurScraping:
         return self.depot.tous()
 
 
+    def demarrer_menu(self):
+        """Boucle du menu : tourne jusqu'à ce que l'utilisateur quitte."""
+        while True:
+            self.vue.afficher_menu()
+            choix = self.vue.demander_choix()
+
+            if choix == "1":
+                mot_cle = self.vue.demander_mot_cle()
+                if mot_cle:
+                    self.lancer(mot_cle)
+                    self.vue.afficher_message(f"{len(self.depot)} produit(s) enregistré(s).")
+
+            elif choix == "2":
+                fichier = self.vue.demander_fichier()
+                if not os.path.exists(fichier):
+                    self.vue.afficher_message(f"Fichier introuvable : {fichier}")
+                else:
+                    nom_export = self.vue.demander_mot_cle()
+                    self.lancer(nom_export or "page_locale", fichier)
+                    self.vue.afficher_message(f"{len(self.depot)} produit(s) enregistré(s).")
+
+            elif choix == "3":
+                self.vue.afficher_produits(self.depot.tous())
+
+            elif choix == "0":
+                self.vue.afficher_message("Au revoir !")
+                break
+
+            else:
+                self.vue.afficher_message("Choix invalide.")
+
 
     def __init__(self):
         self.depot = DepotProduits()
+        self.vue = VueConsole()
