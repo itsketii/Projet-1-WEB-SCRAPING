@@ -41,6 +41,8 @@ def extraire_produit(carte):
 
     h2 = carte.find_elements(By.TAG_NAME, "h2")
     produit.nom = texte(h2[0]) if h2 else None
+    image = carte.find_elements(By.CSS_SELECTOR, "img.s-image")
+    produit.image_url = image[0].get_attribute("src") if image else None
 
     for champ, (selecteur, contient) in SELECTEURS.items():
         setattr(produit, champ, chercher(carte, selecteur, contient))

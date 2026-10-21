@@ -17,3 +17,5 @@ class Produit:
     best_seller: bool = False
     stock_limite: bool = False
     offre_limitee: bool = False
+    image_url: str | None = None
+    image_fichier: str | None = None
