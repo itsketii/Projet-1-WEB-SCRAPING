@@ -4,6 +4,9 @@ from config import DELAI_ATTENTE, HEADLESS
 from app.outils import slugifier
 from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV
+from app.models.depot_produits import DepotProduits
+
+
 
 DOSSIER_PAGES = "pages"
 
@@ -29,5 +32,13 @@ class ControleurScraping:
 
             produits = robot.extraire_tous() if trouve else []
 
-        ExportCSV(mot_cle).enregistrer(produits)
-        return produits
+        self.depot.vider()
+        self.depot.ajouter_tous(produits)
+
+        ExportCSV(mot_cle).enregistrer(self.depot.tous())
+        return self.depot.tous()
+
+
+
+    def __init__(self):
+        self.depot = DepotProduits()

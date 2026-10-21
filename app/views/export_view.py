@@ -4,7 +4,7 @@ from dataclasses import asdict, fields
 from datetime import datetime
 
 from config import DOSSIER_DATA
-from outils import slugifier
+from app.outils import slugifier
 from app.models.produit import Produit
 
 
