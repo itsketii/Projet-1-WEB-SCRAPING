@@ -6,3 +6,8 @@ venv/
 docs
 data/images/
 data/*.csv
+data/*
+!data/.gitkeep
+pages/*
+!pages/.gitkeep
+!pages/ecouteurs.html

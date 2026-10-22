@@ -30,3 +30,7 @@ class VueConsole:
 
     def demander_oui_non(self, question):
         return input(f"{question} (o/n) : ").strip().lower() == "o"
+
+    def demander_nombre_pages(self, defaut):
+        saisie = input(f"Nombre de pages [{defaut}] : ").strip()
+        return int(saisie) if saisie.isdigit() and int(saisie) > 0 else defaut

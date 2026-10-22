@@ -9,3 +9,6 @@ load_dotenv()
 DOSSIER_DATA = os.getenv("DOSSIER_DATA", "data")
 HEADLESS = os.getenv("HEADLESS", "false").lower() == "true"
 DELAI_ATTENTE = int(os.getenv("DELAI_ATTENTE", "15"))
+PAGES_MAX = 3        # nombre de pages de résultats à parcourir
+PAUSE_PAGES = 3      # secondes d'attente entre deux pages
+DELAI_CHARGEMENT = int(os.getenv("DELAI_CHARGEMENT", "30"))   # secondes max pour charger une page
