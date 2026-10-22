@@ -1,11 +1,11 @@
 import re
+import unicodedata
+
 
 def normaliser(texte):
     """Met en minuscules et enlève les accents (pour comparer sans se soucier de la casse)."""
     decompose = unicodedata.normalize("NFD", texte or "")
     return "".join(c for c in decompose if unicodedata.category(c) != "Mn").lower()
-
-import unicodedata
 
 
 def slugifier(texte):

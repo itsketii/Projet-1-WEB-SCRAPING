@@ -1,7 +1,6 @@
 import re
+
 from app.outils import normaliser
-
-
 
 
 class DepotProduits:
@@ -25,7 +24,7 @@ class DepotProduits:
     def __len__(self):
         return len(self._produits)
 
-    def normaliser(self, termes):
+    def filtrer(self, termes):
         """Ne garde que les produits dont le nom contient TOUS les mots de `termes`.
         Renvoie le nombre de produits écartés."""
         mots = normaliser(termes).split()
@@ -35,6 +34,6 @@ class DepotProduits:
         avant = len(self._produits)
         self._produits = [
             produit for produit in self._produits
-            if all(re.search(rf"\b{re.escape(mot)}\b", (produit.nom)) for mot in mots)
+            if all(re.search(rf"\b{re.escape(mot)}\b", normaliser(produit.nom)) for mot in mots)
         ]
         return avant - len(self._produits)

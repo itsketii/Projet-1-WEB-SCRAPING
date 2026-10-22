@@ -37,7 +37,7 @@ class ControleurScraping:
                         time.sleep(PAUSE_PAGES)
 
         if filtre:
-            ecartes = self.depot.normaliser(filtre)
+            ecartes = self.depot.filtrer(filtre)
             self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
 
         if telecharger_images:
