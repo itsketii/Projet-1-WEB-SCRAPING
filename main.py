@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 
+from config import PAGES_MAX
 from app.controllers.controleur_scraping import ControleurScraping
 
 
@@ -13,6 +14,8 @@ def main():
                          help="travailler sur une page déjà sauvegardée (aucune requête vers Amazon)")
     parseur.add_argument("--images", action="store_true",
                          help="télécharger aussi l'image de chaque produit")
+    parseur.add_argument("--pages", type=int, default=None,
+                         help="nombre de pages de résultats à parcourir")
     args = parseur.parse_args()
 
     if args.local and not os.path.exists(args.local):
@@ -22,7 +25,7 @@ def main():
     if args.mot_cle is None:
         controleur.demarrer_menu()
     else:
-        controleur.lancer(args.mot_cle, args.local, args.images)
+        controleur.lancer(args.mot_cle, args.local, args.images, args.pages or PAGES_MAX)
 
 
 if __name__ == "__main__":

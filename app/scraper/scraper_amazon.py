@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from urllib.parse import quote_plus
 
+from config import DELAI_CHARGEMENT
 from app.scraper.navigateur import creer_navigateur
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -17,7 +18,7 @@ class ScraperAmazon:
     
 
     def __init__(self, invisible=False):
-      self.driver = creer_navigateur(invisible)
+      self.driver = creer_navigateur(invisible, DELAI_CHARGEMENT)
     
     # --- permet d'écrire : with ScraperAmazon() as robot: ---
     def __enter__(self):
@@ -44,7 +45,12 @@ class ScraperAmazon:
 
     # --- actions principales ---
     def ouvrir(self, adresse):
-        self.driver.get(adresse)
+        """True si la page s'est chargée à temps, False si le délai est dépassé."""
+        try:
+            self.driver.get(adresse)
+            return True
+        except TimeoutException:
+            return False
 
     def attendre_resultats(self, delai=15):
         """True si les cartes produits apparaissent, False sinon (captcha, blocage...)."""
