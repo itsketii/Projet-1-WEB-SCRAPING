@@ -4,7 +4,8 @@ import time
 
 from app.models.statistiques import calculer_statistiques, comparer_marques
 from app.scraper.telechargeur_images import telecharger_image
-from config import DELAI_ATTENTE, HEADLESS, DOSSIER_DATA, PAGES_MAX, PAUSE_PAGES
+from config import DELAI_ATTENTE, HEADLESS, DOSSIER_DATA, PAGES_MAX, PAUSE_PAGES, DB_PATH
+from app.models.base_sqlite import BaseSQLite
 from app.outils import slugifier
 from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV
@@ -43,6 +44,10 @@ class ControleurScraping:
             self._telecharger_images(slug)
 
         ExportCSV(mot_cle).enregistrer(self.depot.tous())
+        self.base.enregistrer(mot_cle, self.depot.tous())
+        self.vue.afficher_message(
+            f"{len(self.depot)} produit(s) sauvegardé(s) dans la base SQLite."
+        )
         return self.depot.tous()
 
     def _lire_page(self, robot, adresse, nom_page=None):
@@ -102,6 +107,9 @@ class ControleurScraping:
                     if marques:
                         self.vue.afficher_comparaison_marques(comparer_marques(produits, marques))
 
+            elif choix == "5":
+                self.vue.afficher_historique(self.base.lister_recherches())
+
             elif choix == "0":
                 self.vue.afficher_message("Au revoir !")
                 break
@@ -112,6 +120,7 @@ class ControleurScraping:
     def __init__(self):
         self.depot = DepotProduits()
         self.vue = VueConsole()
+        self.base = BaseSQLite(DB_PATH)
 
     def _telecharger_images(self, slug):
         """Télécharge l'image de chaque produit du dépôt dans data/images/<recherche>/."""
