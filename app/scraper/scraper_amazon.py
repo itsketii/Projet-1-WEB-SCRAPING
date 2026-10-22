@@ -31,8 +31,11 @@ class ScraperAmazon:
 
     # --- adresses à ouvrir ---
     @classmethod
-    def url_recherche(cls, mot_cle):
-        return cls.URL_RECHERCHE + quote_plus(mot_cle)
+    def url_recherche(cls, mot_cle, page=1):
+        adresse = cls.URL_RECHERCHE + quote_plus(mot_cle)
+        if page > 1:
+            adresse += f"&page={page}"
+        return adresse
 
     @staticmethod
     def url_fichier_local(chemin):
