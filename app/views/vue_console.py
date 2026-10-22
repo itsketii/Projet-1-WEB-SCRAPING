@@ -54,6 +54,13 @@ class VueConsole:
         print(f"Prix moyen   : {euros(stats['prix_moyen'])}")
         print(f"Prix médian  : {euros(stats['prix_median'])}")
         print(f"Produits en promotion : {stats['en_promo']}")
-        print("Marques les plus présentes (1er mot du nom) :")
-        for marque, nombre in stats["marques"]:
-            print(f"  {marque} : {nombre}")
+
+    def demander_marques(self):
+        saisie = input("Marques à comparer, séparées par des espaces (ex. jbl samsung apple, vide = aucune) : ")
+        return saisie.split()
+
+    def afficher_comparaison_marques(self, lignes):
+        print("\n=== Comparaison des marques ===")
+        for ligne in lignes:
+            prix = "n/a" if ligne["prix_moyen"] is None else f"{ligne['prix_moyen']:.2f} €".replace(".", ",")
+            print(f"{ligne['marque']} : {ligne['nombre']} produit(s), prix moyen {prix}")
