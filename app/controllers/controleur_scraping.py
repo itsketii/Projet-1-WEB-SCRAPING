@@ -2,6 +2,7 @@ import os
 import time
 
 
+from app.models.statistiques import calculer_statistiques
 from app.scraper.telechargeur_images import telecharger_image
 from config import DELAI_ATTENTE, HEADLESS, DOSSIER_DATA, PAGES_MAX, PAUSE_PAGES
 from app.outils import slugifier
@@ -35,7 +36,7 @@ class ControleurScraping:
                         time.sleep(PAUSE_PAGES)
 
         if filtre:
-            ecartes = self.depot.filtrer(filtre)
+            ecartes = self.depot.normaliser(filtre)
             self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
 
         if telecharger_images:
@@ -92,6 +93,10 @@ class ControleurScraping:
 
             elif choix == "3":
                 self.vue.afficher_produits(self.depot.tous())
+
+            elif choix == "4":
+                stats = calculer_statistiques(self.depot.tous())
+                self.vue.afficher_statistiques(stats)
 
             elif choix == "0":
                 self.vue.afficher_message("Au revoir !")

@@ -6,6 +6,7 @@ class VueConsole:
         print("1. Lancer un scraping (mot-clé)")
         print("2. Analyser une page HTML sauvegardée")
         print("3. Afficher les produits en mémoire")
+        print("4. Statistiques")
         print("0. Quitter")
 
     def demander_choix(self):
@@ -36,4 +37,23 @@ class VueConsole:
         return int(saisie) if saisie.isdigit() and int(saisie) > 0 else defaut
 
     def demander_filtre(self):
-        return input("Filtre sur le nom, ex. iphone 18 (vide = tout garder) : ").strip()
+        return input("Filtre sur le nom (si vous ne voulez pas filtrer appuyez sur entrer) : ").strip()
+
+    def afficher_statistiques(self, stats):
+        if stats["nombre"] == 0:
+            print("Aucun produit en mémoire : lancez d'abord un scraping.")
+            return
+
+        def euros(valeur):
+            return "n/a" if valeur is None else f"{valeur:.2f} €".replace(".", ",")
+
+        print("\n=== Statistiques ===")
+        print(f"Produits : {stats['nombre']} ({stats['sans_prix']} sans prix)")
+        print(f"Prix minimum : {euros(stats['prix_min'])}")
+        print(f"Prix maximum : {euros(stats['prix_max'])}")
+        print(f"Prix moyen   : {euros(stats['prix_moyen'])}")
+        print(f"Prix médian  : {euros(stats['prix_median'])}")
+        print(f"Produits en promotion : {stats['en_promo']}")
+        print("Marques les plus présentes (1er mot du nom) :")
+        for marque, nombre in stats["marques"]:
+            print(f"  {marque} : {nombre}")
