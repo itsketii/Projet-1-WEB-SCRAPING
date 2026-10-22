@@ -2,13 +2,13 @@ import os
 import time
 
 
+from app.models.base_sqlite import BaseSQLite
 from app.models.statistiques import calculer_statistiques, comparer_marques
 from app.scraper.telechargeur_images import telecharger_image
-from config import DELAI_ATTENTE, HEADLESS, DOSSIER_DATA, PAGES_MAX, PAUSE_PAGES, DB_PATH
-from app.models.base_sqlite import BaseSQLite
+from config import DELAI_ATTENTE, HEADLESS, DB_PATH, PAGES_MAX, PAUSE_PAGES
 from app.outils import slugifier
 from app.scraper.scraper_amazon import ScraperAmazon
-from app.views.export_view import ExportCSV
+from app.views.export_view import ExportCSV, ExportRecap, dossier_categorie
 from app.models.depot_produits import DepotProduits
 from app.views.vue_console import VueConsole
 
@@ -43,7 +43,8 @@ class ControleurScraping:
         if telecharger_images:
             self._telecharger_images(slug)
 
-        ExportCSV(mot_cle).enregistrer(self.depot.tous())
+        ExportCSV(slug).enregistrer(self.depot.tous())
+        ExportRecap().mettre_a_jour(slug, self.depot.tous())
         self.base.enregistrer(mot_cle, self.depot.tous())
         self.vue.afficher_message(
             f"{len(self.depot)} produit(s) sauvegardé(s) dans la base SQLite."
@@ -123,8 +124,8 @@ class ControleurScraping:
         self.base = BaseSQLite(DB_PATH)
 
     def _telecharger_images(self, slug):
-        """Télécharge l'image de chaque produit du dépôt dans data/images/<recherche>/."""
-        dossier = os.path.join(DOSSIER_DATA, "images", slug)
+        """Télécharge l'image de chaque produit dans la catégorie exportée."""
+        dossier = os.path.join(dossier_categorie(slug), "images")
         for numero, produit in enumerate(self.depot.tous(), start=1):
             produit.image_fichier = telecharger_image(
                 produit.image_url, dossier, f"{numero:03d}.jpg"
