@@ -7,6 +7,7 @@ class VueConsole:
         print("2. Analyser une page HTML sauvegardée")
         print("3. Afficher les produits en mémoire")
         print("4. Statistiques")
+        print("5. Historique des recherches (base SQLite)")
         print("0. Quitter")
 
     def demander_choix(self):
@@ -64,3 +65,11 @@ class VueConsole:
         for ligne in lignes:
             prix = "n/a" if ligne["prix_moyen"] is None else f"{ligne['prix_moyen']:.2f} €".replace(".", ",")
             print(f"{ligne['marque']} : {ligne['nombre']} produit(s), prix moyen {prix}")
+
+    def afficher_historique(self, lignes):
+        if not lignes:
+            print("Aucune recherche enregistrée dans la base.")
+            return
+        print("\n=== Historique des recherches ===")
+        for identifiant, mot_cle, date, nombre in lignes:
+            print(f"#{identifiant} | {date} | {mot_cle} | {nombre} produit(s)")
