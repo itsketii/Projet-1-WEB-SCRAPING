@@ -2,10 +2,10 @@ import os
 import time
 
 
+from app.models.base_sqlite import BaseSQLite
 from app.models.statistiques import calculer_statistiques, comparer_marques
 from app.scraper.telechargeur_images import telecharger_image
-from config import DELAI_ATTENTE, HEADLESS, PAGES_MAX, PAUSE_PAGES, DB_PATH
-from app.models.base_sqlite import BaseSQLite
+from config import DELAI_ATTENTE, HEADLESS, DB_PATH, PAGES_MAX, PAUSE_PAGES
 from app.outils import slugifier
 from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV, ExportRecap, dossier_categorie
