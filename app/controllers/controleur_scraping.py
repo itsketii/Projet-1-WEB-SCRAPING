@@ -16,8 +16,8 @@ PAUSE_IMAGES = 0.5  # temps de latence en secondes entre deux téléchargements
 
 class ControleurScraping:
 
-    def lancer(
-        self, mot_cle, fichier_local=None, telecharger_images=False, pages=PAGES_MAX
+    def lancer(self, mot_cle, fichier_local=None, telecharger_images=False,
+               pages=PAGES_MAX, filtre=""
     ):
         """Scrape plusieurs pages (ou relit une page locale), puis exporte en CSV."""
         slug = slugifier(mot_cle)
@@ -33,6 +33,10 @@ class ControleurScraping:
                         break  # page bloquée ou vide : on arrête
                     if page < pages:
                         time.sleep(PAUSE_PAGES)
+
+        if filtre:
+            ecartes = self.depot.filtrer(filtre)
+            self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
 
         if telecharger_images:
             self._telecharger_images(slug)
@@ -66,8 +70,9 @@ class ControleurScraping:
                 mot_cle = self.vue.demander_mot_cle()
                 if mot_cle:
                     pages = self.vue.demander_nombre_pages(PAGES_MAX)
+                    filtre = self.vue.demander_filtre()
                     images = self.vue.demander_oui_non("Télécharger les images ?")
-                    self.lancer(mot_cle, telecharger_images=images, pages=pages)
+                    self.lancer(mot_cle, telecharger_images=images, pages=pages, filtre=filtre)
                     self.vue.afficher_message(f"{len(self.depot)} produit(s) enregistré(s).")
 
             elif choix == "2":
@@ -76,9 +81,10 @@ class ControleurScraping:
                     self.vue.afficher_message(f"Fichier introuvable : {fichier}")
                 else:
                     nom_export = self.vue.demander_mot_cle()
+                    filtre = self.vue.demander_filtre()
                     images = self.vue.demander_oui_non("Télécharger les images ?")
                     self.lancer(
-                        nom_export or "page_locale", fichier, telecharger_images=images
+                        nom_export or "page_locale", fichier, telecharger_images=images, filtre=filtre
                     )
                     self.vue.afficher_message(
                         f"{len(self.depot)} produit(s) enregistré(s)."

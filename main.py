@@ -16,6 +16,8 @@ def main():
                          help="télécharger aussi l'image de chaque produit")
     parseur.add_argument("--pages", type=int, default=None,
                          help="nombre de pages de résultats à parcourir")
+    parseur.add_argument("--filtre", default="",
+                         help='ne garder que les produits dont le nom contient ces mots')
     args = parseur.parse_args()
 
     if args.local and not os.path.exists(args.local):
@@ -25,7 +27,8 @@ def main():
     if args.mot_cle is None:
         controleur.demarrer_menu()
     else:
-        controleur.lancer(args.mot_cle, args.local, args.images, args.pages or PAGES_MAX)
+        controleur.lancer(args.mot_cle, args.local, args.images,
+                          args.pages or PAGES_MAX, args.filtre)
 
 
 if __name__ == "__main__":

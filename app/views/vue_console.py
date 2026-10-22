@@ -34,3 +34,6 @@ class VueConsole:
     def demander_nombre_pages(self, defaut):
         saisie = input(f"Nombre de pages [{defaut}] : ").strip()
         return int(saisie) if saisie.isdigit() and int(saisie) > 0 else defaut
+
+    def demander_filtre(self):
+        return input("Filtre sur le nom, ex. iphone 18 (vide = tout garder) : ").strip()
