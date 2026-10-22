@@ -27,3 +27,6 @@ class VueConsole:
         for i, produit in enumerate(produits, start=1):
             nom = (produit.nom or "(sans nom)")[:60]
             print(f"{i}. {nom} | {produit.prix or 'prix inconnu'}")
+
+    def demander_oui_non(self, question):
+        return input(f"{question} (o/n) : ").strip().lower() == "o"
