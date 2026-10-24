@@ -47,6 +47,10 @@ class ControleurScraping:
                 return []
             self.vue.afficher_message("Les pages déjà récupérées sont conservées.")
 
+        doublons = self.depot.dedoublonner()
+        if doublons:
+            self.vue.afficher_message(f"{doublons} doublon(s) retiré(s).")    
+
         if filtre:
             ecartes = self.depot.filtrer(filtre)
             self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
