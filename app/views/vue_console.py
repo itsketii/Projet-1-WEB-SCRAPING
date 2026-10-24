@@ -15,6 +15,7 @@ class VueConsole:
         print("4. Statistiques")
         print("5. Historique des recherches (base SQLite)")
         print("6. Évolution des prix d'un mot-clé")
+        print("7. Afficher le journal des opérations")
         print("0. Quitter")
 
     def demander_choix(self):
@@ -31,6 +32,14 @@ class VueConsole:
 
     def afficher_message(self, texte):
         print(texte)
+
+    def afficher_journal(self, lignes):
+        if not lignes:
+            print("Aucune opération enregistrée dans le journal.")
+            return
+        print("\n=== Journal des opérations ===")
+        for ligne in lignes:
+            print(ligne.rstrip())
 
     def afficher_produits(self, produits):
         if not produits:
