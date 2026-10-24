@@ -37,3 +37,19 @@ class DepotProduits:
             if all(re.search(rf"\b{re.escape(mot)}\b", normaliser(produit.nom)) for mot in mots)
         ]
         return avant - len(self._produits)
+
+    def dedoublonner(self):
+        """Retire les produits dont le nom a déjà été vu (on garde le premier).
+        Renvoie le nombre de doublons retirés."""
+        deja_vus = set()
+        uniques = []
+        for produit in self._produits:
+            cle = normaliser(produit.nom)
+            if cle and cle in deja_vus:
+                continue
+            deja_vus.add(cle)
+            uniques.append(produit)
+
+        retires = len(self._produits) - len(uniques)
+        self._produits = uniques
+        return retires
