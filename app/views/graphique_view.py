@@ -42,3 +42,26 @@ class GraphiqueView:
         figure.savefig(chemin, dpi=150)
         plt.close(figure)
         return chemin
+
+    def evolution_prix(self, mot_cle, lignes, nom_fichier):
+        """Renvoie le chemin du PNG, ou None s'il y a moins de 2 points."""
+        points = [(ligne[0], ligne[2]) for ligne in lignes if ligne[2] is not None]
+        if len(points) < 2:
+            return None
+
+        dates = [point[0] for point in points]
+        moyennes = [point[1] for point in points]
+
+        figure, axe = plt.subplots(figsize=(8, 5))
+        axe.plot(range(len(dates)), moyennes, marker="o")
+        axe.set_xticks(range(len(dates)))
+        axe.set_xticklabels(dates, rotation=30, ha="right")
+        axe.set_title(f"Évolution du prix moyen : {mot_cle}")
+        axe.set_ylabel("Prix moyen (€)")
+        axe.grid(True, alpha=0.3)
+        figure.tight_layout()
+
+        chemin = os.path.join(dossier_graphiques(), nom_fichier)
+        figure.savefig(chemin, dpi=150)
+        plt.close(figure)
+        return chemin

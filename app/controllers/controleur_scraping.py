@@ -151,9 +151,14 @@ class ControleurScraping:
                 self.vue.afficher_mots_cles(mots_cles)
                 if mots_cles:
                     mot_cle = self.vue.demander_mot_cle_analyse()
-                    self.vue.afficher_evolution_prix(
-                        mot_cle, self.base.evolution_prix(mot_cle)
-                    )
+                    lignes = self.base.evolution_prix(mot_cle)
+                    self.vue.afficher_evolution_prix(mot_cle, lignes)
+                    if len(lignes) >= 2 and self.vue.demander_oui_non("Enregistrer un graphique ?"):
+                        chemin = self.graphiques.evolution_prix(
+                            mot_cle, lignes, f"evolution_{slugifier(mot_cle)}.png")
+                        self.vue.afficher_message(
+                            f"Graphique enregistré : {chemin}" if chemin
+                            else "Rien à dessiner (pas assez de prix).")
 
             elif choix == "0":
                 self.vue.afficher_message("Au revoir !")
