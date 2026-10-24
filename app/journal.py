@@ -4,6 +4,10 @@ import os
 from config import DOSSIER_DATA
 
 
+def chemin_journal():
+    return os.path.join(DOSSIER_DATA, "journal", "scraping.log")
+
+
 def configurer_journal():
     """Prépare le journal et renvoie le logger des opérations de scraping."""
     dossier = os.path.join(DOSSIER_DATA, "journal")
@@ -13,7 +17,7 @@ def configurer_journal():
         return journal
     journal.setLevel(logging.INFO)
     fichier = logging.FileHandler(
-        os.path.join(dossier, "scraping.log"), encoding="utf-8-sig"
+        chemin_journal(), encoding="utf-8-sig"
     )
     fichier.setFormatter(
         logging.Formatter(

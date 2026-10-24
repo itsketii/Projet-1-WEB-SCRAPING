@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 from app.models.base_sqlite import BaseSQLite
-from app.journal import configurer_journal
+from app.journal import chemin_journal, configurer_journal
 from app.models.statistiques import calculer_statistiques, comparer_marques
 from app.scraper.telechargeur_images import telecharger_image
 from config import DELAI_ATTENTE, HEADLESS, DB_PATH, PAGES_MAX, PAUSE_PAGES
@@ -178,6 +178,15 @@ class ControleurScraping:
                         self.vue.afficher_message(
                             f"Graphique enregistré : {chemin}" if chemin
                             else "Rien à dessiner (pas assez de prix).")
+
+            elif choix == "7":
+                try:
+                    with open(chemin_journal(), encoding="utf-8-sig") as fichier:
+                        self.vue.afficher_journal(fichier.readlines())
+                except OSError as erreur:
+                    self.vue.afficher_message(
+                        f"Impossible de lire le journal : {erreur}"
+                    )
 
             elif choix == "0":
                 self.vue.afficher_message("Au revoir !")
