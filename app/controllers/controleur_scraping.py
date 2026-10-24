@@ -1,9 +1,11 @@
 import os
 import time
+import logging
 from datetime import datetime
 
 
 from app.models.base_sqlite import BaseSQLite
+from app.journal import configurer_journal
 from app.models.statistiques import calculer_statistiques, comparer_marques
 from app.scraper.telechargeur_images import telecharger_image
 from config import DELAI_ATTENTE, HEADLESS, DB_PATH, PAGES_MAX, PAUSE_PAGES
@@ -17,6 +19,7 @@ from app.scraper.erreurs import ErreurConnexion
 
 DOSSIER_PAGES = "pages"
 PAUSE_IMAGES = 0.5  # temps de latence en secondes entre deux téléchargements
+journal = logging.getLogger("scraper")
 
 
 class ControleurScraping:
@@ -24,10 +27,14 @@ class ControleurScraping:
     def lancer(self, mot_cle, fichier_local=None, telecharger_images=False,
                pages=PAGES_MAX, filtre="", exclure=""):
         """Scrape plusieurs pages (ou relit une page locale), puis exporte en CSV."""
+        debut = time.perf_counter()
         slug = slugifier(mot_cle)
         self.depot.vider()
+        journal.info(f"Lancement : mot-clé « {mot_cle} », local={bool(fichier_local)}, "
+                     f"pages={pages}, filtre « {filtre} », exclusion « {exclure} »")
 
         if not fichier_local and not internet_disponible():
+            journal.error("Pas de connexion à internet (ou Amazon est injoignable).")
             self.vue.afficher_message("Pas de connexion à internet (ou Amazon est injoignable). "
                                       "Vérifiez votre connexion puis réessayez.")
             return []
@@ -44,6 +51,7 @@ class ControleurScraping:
                         if page < pages:
                             time.sleep(PAUSE_PAGES)
         except ErreurConnexion as erreur:
+            journal.error(f"Erreur de connexion : {erreur}")
             self.vue.afficher_message(f"Erreur de connexion : {erreur}.")
             if len(self.depot) == 0:
                 return []
@@ -51,17 +59,21 @@ class ControleurScraping:
 
         doublons = self.depot.dedoublonner()
         if doublons:
+            journal.info(f"{doublons} doublon(s) retiré(s).")
             self.vue.afficher_message(f"{doublons} doublon(s) retiré(s).")    
 
         if filtre:
             ecartes = self.depot.filtrer(filtre)
+            journal.info(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
             self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
 
         if exclure:
             retires = self.depot.exclure(exclure)
+            journal.info(f"Exclusion « {exclure} » : {retires} produit(s) retiré(s).")
             self.vue.afficher_message(f"Exclusion « {exclure} » : {retires} produit(s) retiré(s).")    
 
         if len(self.depot) == 0:
+            journal.warning("Aucun produit à enregistrer.")
             self.vue.afficher_message("Aucun produit à enregistrer : rien n'est écrit sur le disque.")
             return []
 
@@ -71,6 +83,8 @@ class ControleurScraping:
         ExportCSV(slug).enregistrer(self.depot.tous())
         ExportRecap().mettre_a_jour(slug, self.depot.tous())
         self.base.enregistrer(mot_cle, self.depot.tous())
+        journal.info(f"Terminé en {time.perf_counter() - debut:.1f} s : "
+                     f"{len(self.depot)} produit(s) enregistré(s) dans « {slug} ».")
         self.vue.afficher_message(
             f"{len(self.depot)} produit(s) sauvegardé(s) dans la base SQLite."
         )
@@ -80,6 +94,7 @@ class ControleurScraping:
         """Ouvre une page, la sauvegarde si on donne un nom, ajoute ses produits au dépôt.
         Renvoie True si des résultats ont été trouvés."""
         if not robot.ouvrir(adresse):
+            journal.warning(f"Chargement trop long, page ignorée : {adresse}")
             self.vue.afficher_message(f"Chargement trop long, page ignorée : {adresse}")
             return False
         trouve = robot.attendre_resultats(DELAI_ATTENTE)
@@ -89,7 +104,11 @@ class ControleurScraping:
             robot.sauvegarder_html(os.path.join(DOSSIER_PAGES, nom))
 
         if trouve:
-            self.depot.ajouter_tous(robot.extraire_tous())
+            produits = robot.extraire_tous()
+            self.depot.ajouter_tous(produits)
+            journal.info(f"{len(produits)} produit(s) lus : {adresse}")
+        else:
+            journal.warning(f"Page bloquée ou sans résultat : {adresse}")
         return trouve
 
     def demarrer_menu(self):
@@ -168,6 +187,7 @@ class ControleurScraping:
                 self.vue.afficher_message("Choix invalide.")
 
     def __init__(self):
+        configurer_journal()
         self.depot = DepotProduits()
         self.vue = VueConsole()
         self.base = BaseSQLite(DB_PATH)
