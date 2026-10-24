@@ -75,4 +75,4 @@ class VueConsole:
             print(f"#{identifiant} | {date} | {mot_cle} | {nombre} produit(s)")
 
     def demander_exclusion(self):
-        return input("Mots à exclure, ex. coque etui (vide = aucun) : ").strip()       
+        return input("Mots à exclure(vide = aucun) : ").strip()       
