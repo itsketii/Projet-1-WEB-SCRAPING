@@ -1,3 +1,9 @@
+def variation_pourcent(precedent, actuel):
+    """Calcule la variation en pourcentage entre deux valeurs."""
+    if precedent is None or actuel is None or precedent == 0:
+        return None
+    return (actuel - precedent) / precedent * 100
+
 class VueConsole:
     """Interaction avec l'utilisateur dans le terminal."""
 
@@ -8,6 +14,7 @@ class VueConsole:
         print("3. Afficher les produits en mémoire")
         print("4. Statistiques")
         print("5. Historique des recherches (base SQLite)")
+        print("6. Évolution des prix d'un mot-clé")
         print("0. Quitter")
 
     def demander_choix(self):
@@ -15,6 +22,9 @@ class VueConsole:
 
     def demander_mot_cle(self):
         return input("Produit à rechercher : ").strip()
+
+    def demander_mot_cle_analyse(self):
+        return input("Mot-clé à analyser : ").strip()
 
     def demander_fichier(self):
         return input("Chemin de la page HTML : ").strip().strip('"')
@@ -74,5 +84,39 @@ class VueConsole:
         for identifiant, mot_cle, date, nombre in lignes:
             print(f"#{identifiant} | {date} | {mot_cle} | {nombre} produit(s)")
 
+    def afficher_mots_cles(self, mots_cles):
+        if not mots_cles:
+            print("Aucune recherche enregistrée dans la base.")
+            return
+        print("\nMots-clés enregistrés :")
+        for mot_cle, nombre in mots_cles:
+            print(f"  {mot_cle} ({nombre} recherche(s))")
+
+    def afficher_evolution_prix(self, mot_cle, lignes):
+        if len(lignes) < 2:
+            print(f"Il faut au moins 2 recherches enregistrées pour « {mot_cle} » "
+                  f"({len(lignes)} trouvée(s)).")
+            return
+
+        def euros(valeur):
+            return "n/a" if valeur is None else f"{valeur:.2f} €".replace(".", ",")
+
+        def pourcent(valeur):
+            return "" if valeur is None else f" ({valeur:+.1f} %)".replace(".", ",")
+
+        print(f"\n=== Évolution des prix : {mot_cle} ===")
+        precedent = None
+        for date, nombre, moyen, minimum, maximum in lignes:
+            variation = variation_pourcent(precedent, moyen)
+            print(f"{date} | {nombre} prix | moyen {euros(moyen)}{pourcent(variation)} "
+                  f"| min {euros(minimum)} | max {euros(maximum)}")
+            if moyen is not None:
+                precedent = moyen
+
+        moyennes = [ligne[2] for ligne in lignes if ligne[2] is not None]
+        if len(moyennes) >= 2:
+            total = variation_pourcent(moyennes[0], moyennes[-1])
+            print(f"Variation entre la première et la dernière recherche : {pourcent(total).strip(' ()')}")
+
     def demander_exclusion(self):
-        return input("Mots à exclure(vide = aucun) : ").strip()       
+        return input("Mots à exclure(vide = aucun) : ").strip()
