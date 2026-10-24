@@ -73,3 +73,6 @@ class VueConsole:
         print("\n=== Historique des recherches ===")
         for identifiant, mot_cle, date, nombre in lignes:
             print(f"#{identifiant} | {date} | {mot_cle} | {nombre} produit(s)")
+
+    def demander_exclusion(self):
+        return input("Mots à exclure, ex. coque etui (vide = aucun) : ").strip()       
