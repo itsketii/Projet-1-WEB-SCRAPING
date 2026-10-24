@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 
 
 from app.models.base_sqlite import BaseSQLite
@@ -9,6 +10,7 @@ from config import DELAI_ATTENTE, HEADLESS, DB_PATH, PAGES_MAX, PAUSE_PAGES
 from app.outils import slugifier, internet_disponible
 from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV, ExportRecap, dossier_categorie
+from app.views.graphique_view import GraphiqueView
 from app.models.depot_produits import DepotProduits
 from app.views.vue_console import VueConsole
 from app.scraper.erreurs import ErreurConnexion
@@ -131,7 +133,15 @@ class ControleurScraping:
                 if produits:
                     marques = self.vue.demander_marques()
                     if marques:
-                        self.vue.afficher_comparaison_marques(comparer_marques(produits, marques))
+                        lignes = comparer_marques(produits, marques)
+                        self.vue.afficher_comparaison_marques(lignes)
+                        if self.vue.demander_oui_non("Enregistrer un graphique ?"):
+                            nom = f"marques_{datetime.now():%Y%m%d_%H%M%S}.png"
+                            chemin = self.graphiques.prix_moyen_par_marque(lignes, nom)
+                            self.vue.afficher_message(
+                                f"Graphique enregistré : {chemin}" if chemin
+                                else "Rien à dessiner (aucun prix pour ces marques)."
+                            )
 
             elif choix == "5":
                 self.vue.afficher_historique(self.base.lister_recherches())
@@ -156,6 +166,7 @@ class ControleurScraping:
         self.depot = DepotProduits()
         self.vue = VueConsole()
         self.base = BaseSQLite(DB_PATH)
+        self.graphiques = GraphiqueView()
 
     def _telecharger_images(self, slug):
         """Télécharge l'image de chaque produit dans la catégorie exportée."""
