@@ -38,6 +38,20 @@ class DepotProduits:
         ]
         return avant - len(self._produits)
 
+    def exclure(self, termes):
+        """Retire les produits dont le nom contient AU MOINS UN des mots de `termes`.
+        Renvoie le nombre de produits retirés."""
+        mots = normaliser(termes).split()
+        if not mots:
+            return 0
+
+        avant = len(self._produits)
+        self._produits = [
+            produit for produit in self._produits
+            if not any(re.search(rf"\b{re.escape(mot)}\b", normaliser(produit.nom)) for mot in mots)
+        ]
+        return avant - len(self._produits)
+
     def dedoublonner(self):
         """Retire les produits dont le nom a déjà été vu (on garde le premier).
         Renvoie le nombre de doublons retirés."""

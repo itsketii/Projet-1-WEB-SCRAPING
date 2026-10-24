@@ -20,7 +20,7 @@ PAUSE_IMAGES = 0.5  # temps de latence en secondes entre deux téléchargements
 class ControleurScraping:
 
     def lancer(self, mot_cle, fichier_local=None, telecharger_images=False,
-               pages=PAGES_MAX, filtre=""):
+               pages=PAGES_MAX, filtre="", exclure=""):
         """Scrape plusieurs pages (ou relit une page locale), puis exporte en CSV."""
         slug = slugifier(mot_cle)
         self.depot.vider()
@@ -54,6 +54,10 @@ class ControleurScraping:
         if filtre:
             ecartes = self.depot.filtrer(filtre)
             self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
+
+        if exclure:
+            retires = self.depot.exclure(exclure)
+            self.vue.afficher_message(f"Exclusion « {exclure} » : {retires} produit(s) retiré(s).")    
 
         if len(self.depot) == 0:
             self.vue.afficher_message("Aucun produit à enregistrer : rien n'est écrit sur le disque.")
@@ -97,8 +101,10 @@ class ControleurScraping:
                 if mot_cle:
                     pages = self.vue.demander_nombre_pages(PAGES_MAX)
                     filtre = self.vue.demander_filtre()
+                    exclusion = self.vue.demander_exclusion()
                     images = self.vue.demander_oui_non("Télécharger les images ?")
-                    self.lancer(mot_cle, telecharger_images=images, pages=pages, filtre=filtre)
+                    self.lancer(mot_cle, telecharger_images=images, pages=pages,
+                                filtre=filtre, exclure=exclusion)
                     self.vue.afficher_message(f"{len(self.depot)} produit(s) enregistré(s).")
 
             elif choix == "2":
@@ -108,13 +114,13 @@ class ControleurScraping:
                 else:
                     nom_export = self.vue.demander_mot_cle()
                     filtre = self.vue.demander_filtre()
+                    exclusion = self.vue.demander_exclusion()
                     images = self.vue.demander_oui_non("Télécharger les images ?")
                     self.lancer(
-                        nom_export or "page_locale", fichier, telecharger_images=images, filtre=filtre
+                        nom_export or "page_locale", fichier,
+                        telecharger_images=images, filtre=filtre, exclure=exclusion
                     )
-                    self.vue.afficher_message(
-                        f"{len(self.depot)} produit(s) enregistré(s)."
-                    )
+                    self.vue.afficher_message(f"{len(self.depot)} produit(s) enregistré(s).")
 
             elif choix == "3":
                 self.vue.afficher_produits(self.depot.tous())
