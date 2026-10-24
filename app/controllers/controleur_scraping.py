@@ -136,6 +136,15 @@ class ControleurScraping:
             elif choix == "5":
                 self.vue.afficher_historique(self.base.lister_recherches())
 
+            elif choix == "6":
+                mots_cles = self.base.lister_mots_cles()
+                self.vue.afficher_mots_cles(mots_cles)
+                if mots_cles:
+                    mot_cle = self.vue.demander_mot_cle_analyse()
+                    self.vue.afficher_evolution_prix(
+                        mot_cle, self.base.evolution_prix(mot_cle)
+                    )
+
             elif choix == "0":
                 self.vue.afficher_message("Au revoir !")
                 break

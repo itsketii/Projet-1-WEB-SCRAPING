@@ -52,6 +52,7 @@ class ScraperAmazon:
             self.driver.get(adresse)
         except WebDriverException as erreur:
             raise ErreurConnexion(f"impossible d'ouvrir la page {adresse}") from erreur
+        return True
 
     def attendre_resultats(self, delai=15):
         """True si les cartes produits apparaissent, False sinon (captcha, blocage...)."""

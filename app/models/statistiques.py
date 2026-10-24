@@ -43,3 +43,9 @@ def comparer_marques(produits, marques):
             "prix_moyen": statistics.mean(prix) if prix else None,
         })
     return resultat
+
+def variation_pourcent(avant, apres):
+    """Variation en pourcentage entre deux valeurs, ou None si on ne peut pas la calculer."""
+    if not avant or apres is None:
+        return None
+    return (apres - avant) / avant * 100

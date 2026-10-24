@@ -83,3 +83,20 @@ class BaseSQLite:
                 "SELECT r.id, r.mot_cle, r.date, COUNT(p.id) "
                 "FROM recherches r LEFT JOIN produits p ON p.recherche_id = r.id "
                 "GROUP BY r.id ORDER BY r.id DESC").fetchall()
+
+    def lister_mots_cles(self):
+        """Renvoie des tuples (mot_cle, nombre de recherches), les plus fréquents d'abord."""
+        with closing(sqlite3.connect(self.chemin)) as connexion:
+            return connexion.execute(
+                "SELECT mot_cle, COUNT(*) FROM recherches "
+                "GROUP BY mot_cle ORDER BY COUNT(*) DESC, mot_cle").fetchall()
+
+    def evolution_prix(self, mot_cle):
+        """Pour chaque recherche d'un mot-clé (de la plus ancienne à la plus récente),
+        renvoie (date, nombre de prix, prix moyen, prix minimum, prix maximum)."""
+        with closing(sqlite3.connect(self.chemin)) as connexion:
+            return connexion.execute(
+                "SELECT r.date, COUNT(p.prix_num), AVG(p.prix_num), "
+                "       MIN(p.prix_num), MAX(p.prix_num) "
+                "FROM recherches r JOIN produits p ON p.recherche_id = r.id "
+                "WHERE r.mot_cle = ? GROUP BY r.id ORDER BY r.id", (mot_cle,)).fetchall()   
