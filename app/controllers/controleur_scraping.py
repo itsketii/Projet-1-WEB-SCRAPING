@@ -6,7 +6,7 @@ from app.models.base_sqlite import BaseSQLite
 from app.models.statistiques import calculer_statistiques, comparer_marques
 from app.scraper.telechargeur_images import telecharger_image
 from config import DELAI_ATTENTE, HEADLESS, DB_PATH, PAGES_MAX, PAUSE_PAGES
-from app.outils import slugifier
+from app.outils import slugifier, internet_disponible
 from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV, ExportRecap, dossier_categorie
 from app.models.depot_produits import DepotProduits
@@ -24,6 +24,10 @@ class ControleurScraping:
         """Scrape plusieurs pages (ou relit une page locale), puis exporte en CSV."""
         slug = slugifier(mot_cle)
         self.depot.vider()
+        if not fichier_local and not internet_disponible():
+            self.vue.afficher_message("Pas de connexion à internet (ou Amazon est injoignable). "
+                                      "Vérifiez votre connexion puis réessayez.")
+            return []
 
         with ScraperAmazon(invisible=HEADLESS) as robot:
             if fichier_local:
@@ -39,6 +43,10 @@ class ControleurScraping:
         if filtre:
             ecartes = self.depot.filtrer(filtre)
             self.vue.afficher_message(f"Filtre « {filtre} » : {ecartes} produit(s) écarté(s).")
+
+        if len(self.depot) == 0:
+            self.vue.afficher_message("Aucun produit à enregistrer : rien n'est écrit sur le disque.")
+            return []    
 
         if telecharger_images:
             self._telecharger_images(slug)
