@@ -9,6 +9,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from selenium.common.exceptions import TimeoutException, WebDriverException
+from app.scraper.erreurs import ErreurConnexion
+
 from app.scraper.extracteur import CARTES, extraire_produit
 
 class ScraperAmazon:
@@ -45,12 +48,10 @@ class ScraperAmazon:
 
     # --- actions principales ---
     def ouvrir(self, adresse):
-        """True si la page s'est chargée à temps, False si le délai est dépassé."""
         try:
             self.driver.get(adresse)
-            return True
-        except TimeoutException:
-            return False
+        except WebDriverException as erreur:
+            raise ErreurConnexion(f"impossible d'ouvrir la page {adresse}") from erreur
 
     def attendre_resultats(self, delai=15):
         """True si les cartes produits apparaissent, False sinon (captcha, blocage...)."""

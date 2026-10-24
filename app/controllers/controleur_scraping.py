@@ -11,6 +11,7 @@ from app.scraper.scraper_amazon import ScraperAmazon
 from app.views.export_view import ExportCSV, ExportRecap, dossier_categorie
 from app.models.depot_produits import DepotProduits
 from app.views.vue_console import VueConsole
+from app.scraper.erreurs import ErreurConnexion
 
 DOSSIER_PAGES = "pages"
 PAUSE_IMAGES = 0.5  # temps de latence en secondes entre deux téléchargements
@@ -19,26 +20,32 @@ PAUSE_IMAGES = 0.5  # temps de latence en secondes entre deux téléchargements
 class ControleurScraping:
 
     def lancer(self, mot_cle, fichier_local=None, telecharger_images=False,
-               pages=PAGES_MAX, filtre=""
-    ):
+               pages=PAGES_MAX, filtre=""):
         """Scrape plusieurs pages (ou relit une page locale), puis exporte en CSV."""
         slug = slugifier(mot_cle)
         self.depot.vider()
+
         if not fichier_local and not internet_disponible():
             self.vue.afficher_message("Pas de connexion à internet (ou Amazon est injoignable). "
                                       "Vérifiez votre connexion puis réessayez.")
             return []
 
-        with ScraperAmazon(invisible=HEADLESS) as robot:
-            if fichier_local:
-                self._lire_page(robot, ScraperAmazon.url_fichier_local(fichier_local))
-            else:
-                for page in range(1, pages + 1):
-                    adresse = ScraperAmazon.url_recherche(mot_cle, page)
-                    if not self._lire_page(robot, adresse, f"{slug}_p{page}"):
-                        break  # page bloquée ou vide : on arrête
-                    if page < pages:
-                        time.sleep(PAUSE_PAGES)
+        try:
+            with ScraperAmazon(invisible=HEADLESS) as robot:
+                if fichier_local:
+                    self._lire_page(robot, ScraperAmazon.url_fichier_local(fichier_local))
+                else:
+                    for page in range(1, pages + 1):
+                        adresse = ScraperAmazon.url_recherche(mot_cle, page)
+                        if not self._lire_page(robot, adresse, f"{slug}_p{page}"):
+                            break  # page bloquée ou vide : on arrête
+                        if page < pages:
+                            time.sleep(PAUSE_PAGES)
+        except ErreurConnexion as erreur:
+            self.vue.afficher_message(f"Erreur de connexion : {erreur}.")
+            if len(self.depot) == 0:
+                return []
+            self.vue.afficher_message("Les pages déjà récupérées sont conservées.")
 
         if filtre:
             ecartes = self.depot.filtrer(filtre)
@@ -46,7 +53,7 @@ class ControleurScraping:
 
         if len(self.depot) == 0:
             self.vue.afficher_message("Aucun produit à enregistrer : rien n'est écrit sur le disque.")
-            return []    
+            return []
 
         if telecharger_images:
             self._telecharger_images(slug)
